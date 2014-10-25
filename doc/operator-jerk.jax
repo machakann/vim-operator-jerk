@@ -1,0 +1,179 @@
+*operator-jerk.txt*				Last change:06-Oct-2014.
+
+行頭以外でもインデント様のテキスト整形を行います。
+
+
+書いた人   : machakann <mckn@outlook.jp>
+ライセンス : NYSL license
+             Japanese <http://www.kmonos.net/nysl/>
+             English (Unofficial) <http://www.kmonos.net/nysl/index.en.html>
+
+==============================================================================
+CONTENTS					*operator-jerk-contents*
+
+INTRODUCTION			|operator-jerk-introduction|
+KEYMAPPINGS			|operator-jerk-keymappings|
+CONFIGURATION			|operator-jerk-configuration|
+
+==============================================================================
+INTRODUCTION					*operator-jerk-introduction*
+
+*operator-jerk* は空白文字によるテキスト整形のための機能を提供する operator プ
+ラグインです。 |text-objects| や |{motion}| の指定する範囲の先頭を行頭に見立て
+てインデント様の整形を行います。例えば Vim の標準の operator に |>| があり、こ
+れはインデントを増やします。ですが、当然インデントなので常に空白の挿入位置は行
+頭です。 |operator-jerk| はこれのある種の変わり種のようなもので、行頭以外にも
+空白を挿入することができます。下記の動作例を参照ください。
+
+Examples~
+shiftwidth は4だと仮定します。 '#' はカーソルの初期位置を表します。
+
+キー入力: |<Plug>(operator-jerk-forward)||iw|
+>
+	               #
+	操作前: abc    def    ghi
+	操作後: abc        def    ghi
+<
+
+キー入力: |<Plug>(operator-jerk-backward)||iw|
+>
+	               #
+	操作前: abc    def    ghi
+	操作後: abcdef    ghi
+<
+
+キー入力: |<Plug>(operator-jerk-forward-partial)||iw|
+>
+	               #
+	操作前: abc    def    ghi
+	操作後: abc        defghi
+<
+
+キー入力: |<Plug>(operator-jerk-backward-partial)||iw|
+>
+	               #
+	操作前: abc    def    ghi
+	操作後: abcdef        ghi
+<
+
+------------------------------------------------------------------------------
+行指向のビジュアルモード選択時の挙動は少し特殊です。対象はカーソル位置に依存し
+、カーソルより後ろに最初に現れる連続した非空白文字が対象となります。
+
+------------------------------------------------------------------------------
+これらのオペレータは {count} を受け付けます。ただし、その解釈は少々特殊です。
+標準的な規則は |{motion}| の項にあるように、 "3{operator}2{motion}" のような
+キー入力がなされた場合 {count} は6が {operator} と {motion} の両方に与えられま
+す。これに対し、本オペレータは3のみを {operator} 用の {count} として受け付け、
+2を {motion} へ渡します。
+
+動作を繰り返す |.| コマンドに {count} を与えた場合、 {count} は {motion} へ渡
+され、 {operator} 用の {count} は更新されません。
+
+
+
+==============================================================================
+KEYMAPPINGS					*operator-jerk-keymappings*
+
+本プラグインは次に掲げるキーマッピングを提供します。
+
+方向		キーマッピング				デフォルト
+--------------------------------------------------------------------------
+forward		<Plug>(operator-jerk-forward)		g>
+		<Plug>(operator-jerk-forward-partial)
+
+backward	<Plug>(operator-jerk-backward)		g<
+		<Plug>(operator-jerk-backward-partial)
+--------------------------------------------------------------------------
+
+もし、デフォルトのキーマッピングがお気に召さなければ
+|g:operator_jerk_no_default_key_mappings| をあなたの vimrc に定義しましょう。
+>
+	let g:operator_jerk_no_default_key_mappings = 1
+<
+こうすれば、デフォルトのキーマッピングは設定されません。あとはお好みのキーへ設
+定しなおしましょう。
+>
+	nmap g> <Plug>(operator-jerk-forward-partial)
+	xmap g> <Plug>(operator-jerk-forward-partial)
+	nmap g< <Plug>(operator-jerk-backward-partial)
+	xmap g< <Plug>(operator-jerk-backward-partial)
+<
+
+------------------------------------------------------------------------------
+keymappings~
+<Plug>(operator-jerk-forward)		*<Plug>(operator-jerk-forward)*
+	対象文字列の先頭にインデントを増やすように空白文字を挿入します。
+
+<Plug>(operator-jerk-backward)		*<Plug>(operator-jerk-backward)*
+	対象文字列の先頭でインデントを減らすように空白文字を消去します。
+
+
+
+				*<Plug>(operator-jerk-forward-partial)*
+<Plug>(operator-jerk-forward-partial)
+	対象文字列の先頭にインデントを増やすように空白文字を挿入し、同時に同じ
+	幅の空白文字を対象末尾で消去します。
+
+				*<Plug>(operator-jerk-backward-partial)*
+<Plug>(operator-jerk-backward-partial)
+	対象文字列の先頭でインデントを減らすように空白文字を消去し、同時に同じ
+	幅の空白文字を対象末尾に挿入します。
+
+
+
+==============================================================================
+CONFIGURATION					*operator-jerk-configuration*
+
+				*g:operator_jerk_no_default_key_mappings*
+g:operator_jerk_no_default_key_mappings
+	この変数が定義されているとデフォルトのキーマッピングは設定されません。
+
+g:operator_jerk_shiftwidth			*g:operator_jerk_shiftwidth*
+	空白文字の増/減幅を指定します。デフォルト値はユーザーの 'tabstop',
+	'shiftwidth' に依存し、 |>| や |<| による増/減幅に等しい値となります。
+	（これは多くの場合 'shiftwidth' の設定値に等しく、より正確には関数
+	|shiftwidth()| の戻り値に等しくなります。）
+	t:operator_jerk_shiftwidth, w:operator_jerk_shiftwidth,
+	b:operator_jerk_shiftwidth も同様に使用可能です。
+
+g:operator_jerk_shiftround			*g:operator_jerk_shiftround*
+	空白の挿入後の対象文字列先頭位置を 'shiftwidth' の幅の倍数へ丸めます。
+	オプション 'shiftround' と同様の機能となります。丸め位置は
+	|g:operator_jerk_shiftwidth| ではなく 'shiftwidth' オプション（より正
+	確には |shiftwidth()| の返り値）により決まる点にご注意ください。
+	t:operator_jerk_shiftround, w:operator_jerk_shiftround,
+	b:operator_jerk_shiftround も同様に使用可能です。
+
+g:operator_jerk_rigid_body			*g:operator_jerk_rigid_body*
+	この変数に非ゼロ値が指定された場合、対象文字列は連続する非空白文字に
+	沿って自動的に拡張されます。
+
+Example~
+shiftwidth は4だと仮定します。 '#' はカーソルの初期位置を表します。
+
+|<Plug>(operator-jerk-forward)||l|
+>
+	                   #
+	操作前        : abcdef    ghi
+	操作後(値が 0): abc    def    ghi
+	操作後(値が 1):     abcdef    ghi
+<
+
+	t:operator_jerk_rigid_body, w:operator_jerk_rigid_body,
+	b:operator_jerk_rigid_body も同様に使用可能です。
+
+
+
+					*g:operator_jerk_expandtab_inside*
+g:operator_jerk_expandtab_inside
+	'expandtab' オプションがオフの時にこの変数に非ゼロ値が指定された場合、
+	行頭以外ではタブ文字をスペースへ変換して挿入します。 'expandtab' がオ
+	ンの場合、このオプションは無視されます。
+	t:operator_jerk_expandtab_inside, w:operator_jerk_expandtab_inside,
+	b:operator_jerk_expandtab_inside も同様に使用可能です。
+
+
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet:

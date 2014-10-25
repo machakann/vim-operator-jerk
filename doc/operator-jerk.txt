@@ -1,0 +1,187 @@
+*operator-jerk.txt*				Last change:26-Oct-2014.
+
+The operator plugin for white space formatting like indentation.
+
+
+Author  : machakann <mckn@outlook.jp>
+License : NYSL license
+          Japanese <http://www.kmonos.net/nysl/>
+          English (Unofficial) <http://www.kmonos.net/nysl/index.en.html>
+
+==============================================================================
+						*operator-jerk-contents*
+
+INTRODUCTION			|operator-jerk-introduction|
+KEYMAPPINGS			|operator-jerk-keymappings|
+CONFIGURATION			|operator-jerk-configuration|
+
+==============================================================================
+INTRODUCTION					*operator-jerk-introduction*
+
+*operator-jerk* is a Vim plugin to implement operators to fill or squash white
+spaces for formatting text. It works like indenting inside lines. For example
+a built-in operator |>| increment indents. But this operator only takes the
+beggining of lines as targets. The |operator-jerk| is a variant of the
+operator, it can take textblocks inside lines as the target. The target of the
+operator is determined by the head of the following |{motion}| or
+|text-objects|.
+
+Examples~
+The shiftwidth is assumed as 4. '#' represents the initial cursor position.
+
+|<Plug>(operator-jerk-forward)||iw|
+>
+	               #
+	Before: abc    def    ghi
+	 After: abc        def    ghi
+<
+
+|<Plug>(operator-jerk-backward)||iw|
+>
+	               #
+	Before: abc    def    ghi
+	 After: abcdef    ghi
+<
+
+|<Plug>(operator-jerk-forward-partial)||iw|
+>
+	               #
+	Before: abc    def    ghi
+	 After: abc        defghi
+<
+
+|<Plug>(operator-jerk-backward-partial)||iw|
+>
+	               #
+	Before: abc    def    ghi
+	 After: abcdef        ghi
+<
+
+------------------------------------------------------------------------------
+This operator shows unique behavior with line-wise visual selection. In that
+case, the target will be the continuum non-space characters appearing after
+the cursor.
+
+------------------------------------------------------------------------------
+{count} can be accepted. However the interpretation is somewhat different from
+usual operators. The default rule is described in |{motion}|. If a keystroke
+like "3{operator}2{motion}" is given, {count} will be recognized as 6 for both
+{operator} and {motion}. The operator-jerk separates the counts depending on
+the timing assigned. If the same keystroke is given, operator-jerk pick up
+only 3 and then 2 will be given to {motion}.
+
+If {count} is given in |.| command to repeat the action, the {count} is given
+to {motion}. The {count} for {operator} never be updated.
+
+
+
+==============================================================================
+KEYMAPPINGS					*operator-jerk-keymappings*
+
+This plugin serves following keymappings.
+
+direction	keymappings				default keymappings
+--------------------------------------------------------------------------
+forward		<Plug>(operator-jerk-forward)		g>
+		<Plug>(operator-jerk-forward-partial)
+
+backward	<Plug>(operator-jerk-backward)		g<
+		<Plug>(operator-jerk-backward-partial)
+--------------------------------------------------------------------------
+
+If you do not need default keymappings, define a variable named
+|g:operator_jerk_no_default_key_mappings| in your vimrc.
+>
+	let g:operator_jerk_no_default_key_mappings = 1
+<
+Then default mappings are never applied. And map them again as you like.
+>
+	nmap g> <Plug>(operator-jerk-forward-partial)
+	xmap g> <Plug>(operator-jerk-forward-partial)
+	nmap g< <Plug>(operator-jerk-backward-partial)
+	xmap g< <Plug>(operator-jerk-backward-partial)
+<
+
+------------------------------------------------------------------------------
+keymappings~
+<Plug>(operator-jerk-forward)		*<Plug>(operator-jerk-forward)*
+	This operator increment indent-like white spaces.
+
+<Plug>(operator-jerk-backward)		*<Plug>(operator-jerk-backward)*
+	This operator decrement indent-like white spaces.
+
+
+
+				*<Plug>(operator-jerk-forward-partial)*
+<Plug>(operator-jerk-forward-partial)
+	This operator increment indent-like white spaces and decrement same
+	width of white spaces following right after the target at the same
+	time.
+
+				*<Plug>(operator-jerk-backward-partial)*
+<Plug>(operator-jerk-backward-partial)
+	This operator decrement indent-like white spaces and increment same
+	width of white spaces following right after the target at the same
+	time.
+
+
+
+==============================================================================
+CONFIGURATION					*operator-jerk-configuration*
+
+				*g:operator_jerk_no_default_key_mappings*
+g:operator_jerk_no_default_key_mappings
+	If you define this valiable in your vimrc, default keymappings do not
+	prepared. If you want to set keymappings as you prefer, this would be
+	helpful.
+
+g:operator_jerk_shiftwidth			*g:operator_jerk_shiftwidth*
+	This option defines the shiftwidth incremented/decremented by a
+	action. The default value is depending on the 'tabstop' and
+	'shiftwidth' options. It is same with the width
+	incremented/decremented by |>| or |<| command. (In many cases, the
+	width is same as the 'shiftwidth' option, more precisely the returned
+	value of |shiftwidth()| function.)
+	t:operator_jerk_shiftwidth, w:operator_jerk_shiftwidth,
+	b:operator_jerk_shiftwidth are also available.
+
+g:operator_jerk_shiftround			*g:operator_jerk_shiftround*
+	This option manages the round behavior of white space
+	increment/decrement like 'shiftround' option. The rounded point is
+	depending on 'shiftwidth' option, more precisely the returned value of
+	|shiftwidth()| function, not on |g:operator_jerk_shiftwidth|.
+	t:operator_jerk_shiftround, w:operator_jerk_shiftround,
+	b:operator_jerk_shiftround are also available.
+
+g:operator_jerk_rigid_body			*g:operator_jerk_rigid_body*
+	If this value is not zero, the target is automatically extended along
+	continuum non-space characters. The default value is 0.
+
+Example~
+The shiftwidth is assumed as 4. '#' represents the initial cursor position.
+
+|<Plug>(operator-jerk-forward)||l|
+>
+	                           #
+	Before                : abcdef    ghi
+	After (the value is 0): abc    def    ghi
+	After (the value is 1):     abcdef    ghi
+<
+
+	t:operator_jerk_rigid_body, w:operator_jerk_rigid_body,
+	b:operator_jerk_rigid_body are also available.
+
+
+
+					*g:operator_jerk_expandtab_inside*
+g:operator_jerk_expandtab_inside
+	If this value is not zero when 'expandtab' option is off, operators
+	expand tab charactor to spaces only inside lines. When 'expandtab' is
+	on, just ignored. The default value is 0.
+	t:operator_jerk_expandtab_inside, w:operator_jerk_expandtab_inside,
+	b:operator_jerk_expandtab_inside are also available.
+
+
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet:
