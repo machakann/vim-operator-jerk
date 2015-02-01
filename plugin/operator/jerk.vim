@@ -1,5 +1,5 @@
 " The vim operator plugin to shift a text block in white spaces.
-" Last Change: 06-Oct-2014.
+" Last Change: 31-Jan-2015.
 " Maintainer : Masaaki Nakamura <mckn@outlook.jp>
 
 " License    : NYSL
@@ -11,15 +11,15 @@ if exists("g:loaded_operator_jerk")
 endif
 let g:loaded_operator_jerk = 1
 
-nnoremap <silent> <Plug>(operator-jerk-forward)  <Esc>:call operator#jerk#precedent('forward')<CR>g@
-xnoremap <silent> <Plug>(operator-jerk-forward)  <Esc>:call operator#jerk#precedent('forward')<CR>gvg@
-nnoremap <silent> <Plug>(operator-jerk-backward) <Esc>:call operator#jerk#precedent('backward')<CR>g@
-xnoremap <silent> <Plug>(operator-jerk-backward) <Esc>:call operator#jerk#precedent('backward')<CR>gvg@
+nnoremap <silent> <Plug>(operator-jerk-forward)  <Esc>:call operator#jerk#precedent('forward', 'n')<CR>g@
+xnoremap <silent> <Plug>(operator-jerk-forward)  <Esc>:call operator#jerk#precedent('forward', 'x')<CR>gvg@
+nnoremap <silent> <Plug>(operator-jerk-backward) <Esc>:call operator#jerk#precedent('backward', 'n')<CR>g@
+xnoremap <silent> <Plug>(operator-jerk-backward) <Esc>:call operator#jerk#precedent('backward', 'x')<CR>gvg@
 
-nnoremap <silent> <Plug>(operator-jerk-forward-partial)  <Esc>:call operator#jerk#precedent('forward_partial')<CR>g@
-xnoremap <silent> <Plug>(operator-jerk-forward-partial)  <Esc>:call operator#jerk#precedent('forward_partial')<CR>gvg@
-nnoremap <silent> <Plug>(operator-jerk-backward-partial) <Esc>:call operator#jerk#precedent('backward_partial')<CR>g@
-xnoremap <silent> <Plug>(operator-jerk-backward-partial) <Esc>:call operator#jerk#precedent('backward_partial')<CR>gvg@
+nnoremap <silent> <Plug>(operator-jerk-forward-partial)  <Esc>:call operator#jerk#precedent('forward_partial', 'n')<CR>g@
+xnoremap <silent> <Plug>(operator-jerk-forward-partial)  <Esc>:call operator#jerk#precedent('forward_partial', 'x')<CR>gvg@
+nnoremap <silent> <Plug>(operator-jerk-backward-partial) <Esc>:call operator#jerk#precedent('backward_partial', 'n')<CR>g@
+xnoremap <silent> <Plug>(operator-jerk-backward-partial) <Esc>:call operator#jerk#precedent('backward_partial', 'x')<CR>gvg@
 
 """ default keymappings
 " If g:textobj_delimited_no_default_key_mappings has been defined, then quit immediately.

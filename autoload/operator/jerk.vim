@@ -1,6 +1,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:null_pos   = [0, 0, 0, 0]
 let s:null_order = [-1, -1, -1, -1, -1, -1, -1]
 
 function! operator#jerk#forward(motion_wise, ...)
@@ -19,10 +20,11 @@ function! operator#jerk#backward_partial(motion_wise, ...)
   return s:jerk('b', 'partial', a:motion_wise, a:000)
 endfunction
 
-function! operator#jerk#precedent(name)
+function! operator#jerk#precedent(name, mode)
   call s:set_info('state', 1)
   call s:set_info('count', v:prevcount == 0 ? 1 : v:prevcount)
   call s:set_info('cursor', getpos('.'))
+  call s:set_info('mode', a:mode)
   execute 'setlocal operatorfunc=operator#jerk#' . a:name
   return
 endfunction
@@ -109,13 +111,34 @@ function! s:jerk_blockwise(direction, kind, textblock, opt) "{{{
   let lines    = getline(head[1], tail[1])
   let head_col = head[2]
   let tail_col = tail[2]
+  let state    = s:get_info('state')
   let l:count  = s:get_info('count')
+  let mode     = s:get_info('mode')
+
+  if a:kind ==# 'partial' && mode ==# 'x'
+    if state
+      normal! gv
+      let is_extended = winsaveview().curswant == 1/0
+      execute "normal! \<Esc>"
+    else
+      let is_extended = s:get_info('extended')
+    endif
+  else
+    let is_extended = 0
+  endif
+  call s:set_info('extended', is_extended)
 
   let newlines = []
   let order_list = []
   for line in lines
-    let order_list += [s:decide_orders(a:direction, a:kind, head_col,
-                                     \ tail_col, line, l:count, a:opt)[0]]
+    let order_list += [s:decide_orders(a:direction,
+                                     \ a:kind,
+                                     \ head_col,
+                                     \ is_extended ? strlen(line) : tail_col,
+                                     \ line,
+                                     \ l:count,
+                                     \ a:opt
+                                     \ )[0]]
   endfor
 
   if a:direction ==# 'f'
@@ -134,7 +157,7 @@ function! s:jerk_blockwise(direction, kind, textblock, opt) "{{{
           let order2 = copy(s:null_order)
         elseif a:kind ==# 'partial'
           let order1 = s:push('head', head_col, line, l:count, a:opt, width)
-          let order2 = s:pull('tail', tail_col, line, l:count, a:opt, width)
+          let order2 = s:pull('tail', is_extended ? col([line, '$']) - 1 : tail_col, line, l:count, a:opt, width)
         endif
       elseif a:direction ==# 'b'
         if a:kind ==# 'following'
@@ -142,7 +165,7 @@ function! s:jerk_blockwise(direction, kind, textblock, opt) "{{{
           let order2 = copy(s:null_order)
         elseif a:kind ==# 'partial'
           let order1 = s:pull('head', head_col, line, l:count, a:opt, width)
-          let order2 = s:push('tail', tail_col, line, l:count, a:opt, width)
+          let order2 = s:push('tail', is_extended ? col([line, '$']) - 1 : tail_col, line, l:count, a:opt, width)
         endif
       endif
 
@@ -179,7 +202,7 @@ function! s:decide_orders(direction, kind, head, tail, line, count, opt)  "{{{
       let order1 = s:push('head', a:head, a:line, a:count, a:opt)
       let order2 = s:pull('tail', a:tail, a:line, a:count, a:opt)
       let width1 = order1[6]
-      let width2 = a:tail == strlen(a:line) ? 1/0 : order2[6]
+      let width2 = a:tail >= strlen(a:line) ? 1/0 : order2[6]
       if min([width1, width2]) > 0
         if width1 > width2
           let order1 = s:push('head', a:head, a:line, a:count, a:opt, width2)
@@ -196,7 +219,7 @@ function! s:decide_orders(direction, kind, head, tail, line, count, opt)  "{{{
       let order2 = copy(s:null_order)
     elseif a:kind ==# 'partial'
       let order1 = s:pull('head', a:head, a:line, a:count, a:opt)
-      let width1 = a:tail == strlen(a:line) ? 1/0 : order1[6]
+      let width1 = a:tail >= strlen(a:line) ? 1/0 : order1[6]
       if width1 > 0
         let order2 = s:push('tail', a:tail, a:line, a:count, a:opt, width1)
       else
@@ -468,7 +491,8 @@ endfunction
 
 function! s:is_valid_range(range)  "{{{
   let [head, tail] = a:range
-  if (head[1] == tail[1] && head[2] <= tail[2]) || (head[1] < tail[1])
+  if head != s:null_pos && tail != s:null_pos
+    \ && (head[1] == tail[1] && head[2] <= tail[2]) || (head[1] < tail[1])
     return 1
   else
     return 0
@@ -504,6 +528,8 @@ function! s:get_info(name)  "{{{
     let b:operator_jerk.state = 0
     let b:operator_jerk.count = 1
     let b:operator_jerk.cursor = [0, 0, 0, 0]
+    let b:operator_jerk.mode = ''
+    let b:operator_jerk.extended = 0
   endif
   return b:operator_jerk[a:name]
 endfunction
