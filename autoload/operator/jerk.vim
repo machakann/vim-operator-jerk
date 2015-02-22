@@ -86,11 +86,15 @@ function! s:jerk_linewise(direction, kind, textblock, opt)  "{{{
     let head_col = matchend(line, '\s*\zs\S', cur_col - 1)
     let tail_col = matchend(line, '\S\+', head_col - 1)
 
-    let [order1, order2] = s:decide_orders(a:direction, a:kind, head_col,
-                                          \ tail_col, line, l:count, a:opt)
+    if head_col >= 0
+      let [order1, order2] = s:decide_orders(a:direction, a:kind, head_col,
+                                            \ tail_col, line, l:count, a:opt)
 
-    let modify = order1 != s:null_order ? 1 : modify
-    let newlines += [s:build_line(line, order1, order2)]
+      let modify = order1 != s:null_order ? 1 : modify
+      let newlines += [s:build_line(line, order1, order2)]
+    else
+      let newlines += [line]
+    endif
   endfor
 
   if modify
@@ -131,14 +135,16 @@ function! s:jerk_blockwise(direction, kind, textblock, opt) "{{{
   let newlines = []
   let order_list = []
   for line in lines
-    let order_list += [s:decide_orders(a:direction,
-                                     \ a:kind,
-                                     \ head_col,
-                                     \ is_extended ? strlen(line) : tail_col,
-                                     \ line,
-                                     \ l:count,
-                                     \ a:opt
-                                     \ )[0]]
+    if strlen(line) >= head_col
+      let order_list += [s:decide_orders(a:direction,
+                                      \ a:kind,
+                                      \ head_col,
+                                      \ is_extended ? strlen(line) : tail_col,
+                                      \ line,
+                                      \ l:count,
+                                      \ a:opt
+                                      \ )[0]]
+    endif
   endfor
 
   if a:direction ==# 'f'
@@ -151,25 +157,29 @@ function! s:jerk_blockwise(direction, kind, textblock, opt) "{{{
   if width > 0
     let newlines = []
     for line in lines
-      if a:direction ==# 'f'
-        if a:kind ==# 'following'
-          let order1 = s:push('head', head_col, line, l:count, a:opt, width)
-          let order2 = copy(s:null_order)
-        elseif a:kind ==# 'partial'
-          let order1 = s:push('head', head_col, line, l:count, a:opt, width)
-          let order2 = s:pull('tail', is_extended ? col([line, '$']) - 1 : tail_col, line, l:count, a:opt, width)
+      if strlen(line) >= head_col
+        if a:direction ==# 'f'
+          if a:kind ==# 'following'
+            let order1 = s:push('head', head_col, line, l:count, a:opt, width)
+            let order2 = copy(s:null_order)
+          elseif a:kind ==# 'partial'
+            let order1 = s:push('head', head_col, line, l:count, a:opt, width)
+            let order2 = s:pull('tail', is_extended ? col([line, '$']) - 1 : tail_col, line, l:count, a:opt, width)
+          endif
+        elseif a:direction ==# 'b'
+          if a:kind ==# 'following'
+            let order1 = s:pull('head', head_col, line, l:count, a:opt, width)
+            let order2 = copy(s:null_order)
+          elseif a:kind ==# 'partial'
+            let order1 = s:pull('head', head_col, line, l:count, a:opt, width)
+            let order2 = s:push('tail', is_extended ? col([line, '$']) - 1 : tail_col, line, l:count, a:opt, width)
+          endif
         endif
-      elseif a:direction ==# 'b'
-        if a:kind ==# 'following'
-          let order1 = s:pull('head', head_col, line, l:count, a:opt, width)
-          let order2 = copy(s:null_order)
-        elseif a:kind ==# 'partial'
-          let order1 = s:pull('head', head_col, line, l:count, a:opt, width)
-          let order2 = s:push('tail', is_extended ? col([line, '$']) - 1 : tail_col, line, l:count, a:opt, width)
-        endif
-      endif
 
-      let newlines += [s:build_line(line, order1, order2)]
+        let newlines += [s:build_line(line, order1, order2)]
+      else
+        let newlines += [line]
+      endif
     endfor
 
     silent execute printf('%s,%sdelete', head[1], tail[1])
