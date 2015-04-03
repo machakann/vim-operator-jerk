@@ -1,4 +1,4 @@
-*operator-jerk.txt*				Last change:26-Oct-2014.
+*operator-jerk.txt*				Last change:03-Apr-2015.
 
 The operator plugin for white space formatting like indentation.
 
@@ -101,6 +101,9 @@ Then default mappings are never applied. And map them again as you like.
 	nmap g< <Plug>(operator-jerk-backward-partial)
 	xmap g< <Plug>(operator-jerk-backward-partial)
 <
+
+If you allow to define default keymappings, g>> and g<< also defined like |<<|
+and |>>|.
 
 ------------------------------------------------------------------------------
 keymappings~

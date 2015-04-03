@@ -1,5 +1,5 @@
 " The vim operator plugin to shift a text block in white spaces.
-" Last Change: 31-Jan-2015.
+" Last Change: 03-Apr-2015.
 " Maintainer : Masaaki Nakamura <mckn@outlook.jp>
 
 " License    : NYSL
@@ -29,6 +29,7 @@ if exists('g:operator_jerk_no_default_key_mappings') | finish | endif
 if !hasmapto('<Plug>(operator-jerk-forward)')
   silent! nmap <unique> g> <Plug>(operator-jerk-forward)
   silent! xmap <unique> g> <Plug>(operator-jerk-forward)
+  silent! nmap <unique> g>> <Plug>(operator-jerk-forward)l
 endif
 
 
@@ -36,5 +37,6 @@ endif
 if !hasmapto('<Plug>(operator-jerk-backward)')
   silent! nmap <unique> g< <Plug>(operator-jerk-backward)
   silent! xmap <unique> g< <Plug>(operator-jerk-backward)
+  silent! nmap <unique> g<< <Plug>(operator-jerk-backward)l
 endif
 

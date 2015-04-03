@@ -1,4 +1,4 @@
-*operator-jerk.txt*	日本語版ヘルプ		Last change:17-Feb-2015.
+*operator-jerk.txt*	日本語版ヘルプ		Last change:03-Apr-2015.
 
 行頭以外でもインデント様のテキスト整形を行います。
 
@@ -99,6 +99,9 @@ backward	<Plug>(operator-jerk-backward)		g<
 	nmap g< <Plug>(operator-jerk-backward-partial)
 	xmap g< <Plug>(operator-jerk-backward-partial)
 <
+
+もしデフォルトキーマッピングの定義を禁止していなければ、 g>> 及び g<< というキ
+ーマッピングも定義されます。これは |<<| や |>>| のように働きます。
 
 ------------------------------------------------------------------------------
 keymappings~
