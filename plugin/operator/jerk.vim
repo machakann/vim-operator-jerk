@@ -1,5 +1,5 @@
 " The vim operator plugin to shift a text block in white spaces.
-" Last Change: 03-Apr-2015.
+" Last Change: 03-Oct-2015.
 " Maintainer : Masaaki Nakamura <mckn@outlook.jp>
 
 " License    : NYSL
@@ -11,14 +11,14 @@ if exists("g:loaded_operator_jerk")
 endif
 let g:loaded_operator_jerk = 1
 
-nnoremap <silent> <Plug>(operator-jerk-forward)  <Esc>:call operator#jerk#precedent('forward', 'n')<CR>g@
+nnoremap <silent> <Plug>(operator-jerk-forward)  :<C-u>call operator#jerk#precedent('forward', 'n')<CR>g@
 xnoremap <silent> <Plug>(operator-jerk-forward)  <Esc>:call operator#jerk#precedent('forward', 'x')<CR>gvg@
-nnoremap <silent> <Plug>(operator-jerk-backward) <Esc>:call operator#jerk#precedent('backward', 'n')<CR>g@
+nnoremap <silent> <Plug>(operator-jerk-backward) :<C-u>call operator#jerk#precedent('backward', 'n')<CR>g@
 xnoremap <silent> <Plug>(operator-jerk-backward) <Esc>:call operator#jerk#precedent('backward', 'x')<CR>gvg@
 
-nnoremap <silent> <Plug>(operator-jerk-forward-partial)  <Esc>:call operator#jerk#precedent('forward_partial', 'n')<CR>g@
+nnoremap <silent> <Plug>(operator-jerk-forward-partial)  :<C-u>call operator#jerk#precedent('forward_partial', 'n')<CR>g@
 xnoremap <silent> <Plug>(operator-jerk-forward-partial)  <Esc>:call operator#jerk#precedent('forward_partial', 'x')<CR>gvg@
-nnoremap <silent> <Plug>(operator-jerk-backward-partial) <Esc>:call operator#jerk#precedent('backward_partial', 'n')<CR>g@
+nnoremap <silent> <Plug>(operator-jerk-backward-partial) :<C-u>call operator#jerk#precedent('backward_partial', 'n')<CR>g@
 xnoremap <silent> <Plug>(operator-jerk-backward-partial) <Esc>:call operator#jerk#precedent('backward_partial', 'x')<CR>gvg@
 
 """ default keymappings

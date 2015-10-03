@@ -22,7 +22,7 @@ endfunction
 
 function! operator#jerk#precedent(name, mode)
   call s:set_info('state', 1)
-  call s:set_info('count', v:prevcount == 0 ? 1 : v:prevcount)
+  call s:set_info('count', a:mode ==# 'x' ? (v:prevcount == 0 ? 1 : v:prevcount) : v:count1)
   call s:set_info('cursor', getpos('.'))
   call s:set_info('mode', a:mode)
   execute 'setlocal operatorfunc=operator#jerk#' . a:name
