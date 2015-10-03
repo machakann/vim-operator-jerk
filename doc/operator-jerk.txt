@@ -1,7 +1,5 @@
-*operator-jerk.txt*				Last change:03-Apr-2015.
-
-The operator plugin for white space formatting like indentation.
-
+*operator-jerk.txt*	Indent even inside a line.
+						Last change:03-Oct-2015.
 
 Author  : machakann <mckn@outlook.jp>
 License : NYSL license
