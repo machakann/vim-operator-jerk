@@ -4,6 +4,16 @@ set cpo&vim
 let s:null_pos   = [0, 0, 0, 0]
 let s:null_order = [-1, -1, -1, -1, -1, -1, -1]
 
+function! s:colmax() abort
+  let view = winsaveview()
+  normal! $
+  let colmax = winsaveview().curswant
+  call winrestview(view)
+  return colmax
+endfunction
+let s:colmax = s:colmax()
+delfunction s:colmax
+
 function! operator#jerk#forward(motion_wise, ...)
   return s:jerk('f', 'following', a:motion_wise, a:000)
 endfunction
@@ -122,7 +132,7 @@ function! s:jerk_blockwise(direction, kind, textblock, opt) "{{{
   if a:kind ==# 'partial' && mode ==# 'x'
     if state
       normal! gv
-      let is_extended = winsaveview().curswant == 1/0
+      let is_extended = winsaveview().curswant == s:colmax
       execute "normal! \<Esc>"
     else
       let is_extended = s:get_info('extended')
